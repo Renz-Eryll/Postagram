@@ -35,16 +35,6 @@
 
 ---
 
-## ⚙️ Environment Setup
-
-Create a `.env` file in the root of the project and add the following variables:
-
-```env
-DATABASE_URL=your_database_url_here
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here
-CLERK_SECRET_KEY=your_clerk_secret_key_here
-```
-
 
 ## ⚡ Quick Start
 
@@ -56,13 +46,23 @@ Follow these steps to get a local copy of the project up and running.
 git clone https://github.com/Renz-Eryll/CourseBoard.git
 ```
 
-### 2️⃣ Install dependencies
+## 2️⃣ Environment Setup
+
+Create a `.env` file in the root of the project and add the following variables:
+
+```env
+DATABASE_URL=your_database_url_here
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key_here
+CLERK_SECRET_KEY=your_clerk_secret_key_here
+```
+
+### 3️⃣ Install dependencies
 
 ```bash
 npm install
 ```
 
-### 3️⃣ Start the development server
+### 4️⃣ Start the development server
 
 ```bash
 npm run dev
