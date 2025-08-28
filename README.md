@@ -15,7 +15,7 @@
 <h1 align="center">📱 Postagram</h1>
 
 <p align="center">
-  Postagram is a modern social media web application built with <b>Next.js</b> and styled with <b>Tailwind CSS</b> and <b>Shadcn UI</b>.  
+  Postagram is a social media web application built with <b>Next.js</b> and styled with <b>Tailwind CSS</b> and <b>Shadcn UI</b>.  
   It provides secure user authentication, posting, and interaction features, with a backend powered by <b>Neon PostgreSQL</b> and <b>Prisma ORM</b>.
 </p>
 
