@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="./public/postagram.png" alt="Postagram Thumbnail" width="800"/>
+  <img src="./public/postagram-thumbnail.svg" alt="Postagram Thumbnail" width="800"/>
 </p>
 
 ##
