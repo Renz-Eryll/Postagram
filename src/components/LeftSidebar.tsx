@@ -1,19 +1,33 @@
 "use client";
 
 import { getNotifications } from "@/lib/actions/notification.action";
-import { HomeIcon, BellIcon, UserIcon, SunIcon, MoonIcon } from "lucide-react";
+import {
+  HomeIcon,
+  BellIcon,
+  UserIcon,
+  SunIcon,
+  MoonIcon,
+  MoreHorizontal,
+} from "lucide-react";
 import Link from "next/link";
-import { UserButton, SignInButton, useUser } from "@clerk/nextjs";
+import { UserButton, SignInButton, useUser, useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./ui/dropdown-menu";
 
 export default function LeftSidebar() {
   const { isSignedIn, user } = useUser();
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { signOut } = useClerk();
 
   useEffect(() => {
     setMounted(true);
@@ -92,10 +106,38 @@ export default function LeftSidebar() {
         </button>
       )}
 
-      {/* User Section */}
-      <div className="mt-auto">
+      <div className="mt-auto border-t py-2">
         {isSignedIn ? (
-          <UserButton />
+          <div className="flex items-center justify-between gap-4">
+            {/* User Info */}
+            <div className="flex items-center gap-3">
+              <img
+                src={user.imageUrl}
+                alt={user.fullName || "User"}
+                className="h-10 w-10 rounded-full"
+              />
+              <div className="flex flex-col text-sm leading-tight">
+                <span className="font-medium">{user.fullName}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400">
+                  {user.primaryEmailAddress?.emailAddress}
+                </span>
+              </div>
+            </div>
+
+            {/* Menu */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                  <MoreHorizontal className="h-5 w-5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => signOut()}>
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         ) : (
           <SignInButton mode="modal">
             <Button className="w-full">Sign In</Button>
