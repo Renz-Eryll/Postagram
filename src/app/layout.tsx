@@ -8,6 +8,7 @@ import { Toaster } from "react-hot-toast";
 import LeftSidebar from "@/components/LeftSidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
 import RightSidebar from "@/components/RIghtSidebar";
+import MobileNavbar from "@/components/MobileNavbar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -36,6 +37,11 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
+            {/* Mobile top nav (fixed) */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 z-50 border-b bg-background">
+              <MobileNavbar />
+            </div>
+
             <div className="min-h-screen flex bg-background text-foreground">
               {/* Left Sidebar */}
               <div className="hidden lg:flex lg:w-64 flex-col border-r">
@@ -43,7 +49,10 @@ export default function RootLayout({
               </div>
 
               {/* Main Feed */}
-              <main className="flex-1 max-w-4xl w-full border-r min-h-screen px-4">
+              <main
+                className="flex-1 max-w-4xl w-full border-r min-h-screen px-4 
+                               pt-20 pb-16 lg:pt-0 lg:pb-0"
+              >
                 {children}
               </main>
 
@@ -53,8 +62,8 @@ export default function RootLayout({
               </div>
             </div>
 
-            {/* Mobile bottom nav */}
-            <div className="lg:hidden fixed bottom-0 left-0 right-0 border-t bg-background">
+            {/* Mobile bottom nav (fixed) */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 border-t bg-background z-50">
               <MobileBottomNav />
             </div>
 
