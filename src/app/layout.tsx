@@ -3,9 +3,11 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
-import Navbar from "@/components/Navbar";
-import Sidebar from "@/components/Sidebar";
+
 import { Toaster } from "react-hot-toast";
+import LeftSidebar from "@/components/LeftSidebar";
+import MobileBottomNav from "@/components/MobileBottomNav";
+import RightSidebar from "@/components/RIghtSidebar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -21,13 +23,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <head />
         <body className={`${inter.variable} antialiased`}>
           <ThemeProvider
             attribute="class"
@@ -35,20 +36,28 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            {/* Match sidebar’s background */}
-            <div className="min-h-screen bg-card text-card-foreground">
-              <Navbar />
-              <main className="py-8">
-                <div className="max-w-7xl mx-auto px-4">
-                  <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-                    <div className="hidden lg:block lg:col-span-3">
-                      <Sidebar />
-                    </div>
-                    <div className="lg:col-span-9">{children}</div>
-                  </div>
-                </div>
+            <div className="min-h-screen flex bg-background text-foreground">
+              {/* Left Sidebar */}
+              <div className="hidden lg:flex lg:w-64 flex-col border-r">
+                <LeftSidebar />
+              </div>
+
+              {/* Main Feed */}
+              <main className="flex-1 max-w-4xl w-full border-r min-h-screen px-4">
+                {children}
               </main>
+
+              {/* Right Sidebar */}
+              <div className="hidden xl:flex xl:w-96 flex-col px-4 py-6">
+                <RightSidebar />
+              </div>
             </div>
+
+            {/* Mobile bottom nav */}
+            <div className="lg:hidden fixed bottom-0 left-0 right-0 border-t bg-background">
+              <MobileBottomNav />
+            </div>
+
             <Toaster />
           </ThemeProvider>
         </body>

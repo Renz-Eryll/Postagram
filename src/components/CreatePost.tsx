@@ -2,10 +2,9 @@
 
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
-import { Card, CardContent } from "./ui/card";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Textarea } from "./ui/textarea";
-import { ImageIcon, Loader2Icon, SendIcon } from "lucide-react";
+import { ImageIcon, Loader2Icon } from "lucide-react";
 import { Button } from "./ui/button";
 import { createPost } from "@/lib/actions/post.action";
 import toast from "react-hot-toast";
@@ -15,7 +14,6 @@ function CreatePost() {
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [isPosting, setIsPosting] = useState(false);
-  const [showImageUpload, setShowImageUpload] = useState(false);
 
   const handleSubmit = async () => {
     if (!content.trim() && !imageUrl) return;
@@ -24,15 +22,11 @@ function CreatePost() {
     try {
       const result = await createPost(content, imageUrl);
       if (result?.success) {
-        // reset the form
         setContent("");
         setImageUrl("");
-        setShowImageUpload(false);
-
         toast.success("Post created successfully");
       }
-    } catch (error) {
-      console.error("Failed to create post:", error);
+    } catch {
       toast.error("Failed to create post");
     } finally {
       setIsPosting(false);
@@ -40,68 +34,51 @@ function CreatePost() {
   };
 
   return (
-    <Card className="mb-6">
-      <CardContent className="pt-6">
-        <div className="space-y-4">
-          <div className="flex space-x-4">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src={user?.imageUrl || "/avatar.png"} />
-            </Avatar>
-            <Textarea
-              placeholder="What's on your mind?"
-              className="min-h-[100px] resize-none border-none focus-visible:ring-0 p-0 text-base"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              disabled={isPosting}
-            />
-          </div>
-          {(showImageUpload || imageUrl) && (
-            <div className="border rounded-lg p-4">
-              {/* <ImageUpload
-                value={imageUrl}
-                onChange={(url) => {
-                  setImageUrl(url);
-                  if (!url) setShowImageUpload(false);
-                }}
-              /> */}
-            </div>
-          )}
+    <div className="border-b border-muted-foreground/20 p-4 flex space-x-3">
+      <Avatar className="w-10 h-10">
+        <AvatarImage src={user?.imageUrl || "/avatar.png"} />
+      </Avatar>
 
-          <div className="flex items-center justify-between border-t pt-4">
-            <div className="flex space-x-2">
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-primary"
-                onClick={() => setShowImageUpload(!showImageUpload)}
-                disabled={isPosting}
-              >
-                <ImageIcon className="size-4 mr-2" />
-                Photo
-              </Button>
-            </div>
-            <Button
-              className="flex items-center"
-              onClick={handleSubmit}
-              disabled={(!content.trim() && !imageUrl) || isPosting}
-            >
-              {isPosting ? (
-                <>
-                  <Loader2Icon className="size-4 mr-2 animate-spin" />
-                  Posting...
-                </>
-              ) : (
-                <>
-                  <SendIcon className="size-4 mr-2" />
-                  Post
-                </>
-              )}
-            </Button>
+      <div className="flex-1">
+        <Textarea
+          placeholder="What's happening?"
+          className="w-full resize-none border-none focus-visible:ring-0 p-3 text-base"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          disabled={isPosting}
+        />
+
+        {imageUrl && (
+          <div className="mt-3 rounded-xl overflow-hidden border">
+            <img src={imageUrl} alt="preview" className="w-full object-cover" />
           </div>
+        )}
+
+        <div className="flex items-center justify-between mt-3 border-t pt-3">
+          <button
+            type="button"
+            onClick={() => toast("Image upload UI goes here")}
+            className="flex items-center text-blue-500 hover:bg-blue-500/10 px-2 py-1 rounded-full transition"
+          >
+            <ImageIcon className="w-5 h-5" />
+          </button>
+
+          <Button
+            onClick={handleSubmit}
+            disabled={(!content.trim() && !imageUrl) || isPosting}
+            className="rounded-full px-6"
+          >
+            {isPosting ? (
+              <>
+                <Loader2Icon className="w-4 h-4 mr-2 animate-spin" /> Posting...
+              </>
+            ) : (
+              "Post"
+            )}
+          </Button>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }
 export default CreatePost;

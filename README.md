@@ -2,7 +2,8 @@
   <img src="./public/postagram.png" alt="Postagram Thumbnail" width="800"/>
 </p>
 
-## 
+##
+
 <p align="center">
   <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white"/>
   <img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white"/>
@@ -22,19 +23,20 @@
 ---
 
 ## ✨ Features
-- 🔒 Secure user authentication with **Clerk**  
-- 📸 Create, view, and interact with posts  
-- 🎨 Responsive and modern UI with **Tailwind CSS** + **Shadcn UI**  
-- 🗄️ Database management with **Prisma ORM + Neon PostgreSQL**  
-- ⚡ Built on **Next.js** for fast performance  
+
+- 🔒 Secure user authentication with **Clerk**
+- 📸 Create, view, and interact with posts
+- 🎨 Responsive and modern UI with **Tailwind CSS** + **Shadcn UI**
+- 🗄️ Database management with **Prisma ORM + Neon PostgreSQL**
+- ⚡ Built on **Next.js** for fast performance
 
 ---
 
 ## 🌐 Demo
-🔗 **Live Demo**: [Postagram](#)  
+
+🔗 **Live Demo**: [Postagram](#)
 
 ---
-
 
 ## ⚡ Quick Start
 

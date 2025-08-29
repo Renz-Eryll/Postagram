@@ -10,40 +10,45 @@ async function WhoToFollow() {
   if (users.length === 0) return null;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Who to Follow</CardTitle>
+    <Card className="rounded-2xl shadow-sm border border-gray-200 dark:border-gray-800">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-semibold">
+          Suggested for you
+        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {users.map((user) => (
-            <div
-              key={user.id}
-              className="flex gap-2 items-center justify-between "
-            >
-              <div className="flex items-center gap-1">
-                <Link href={`/profile/${user.username}`}>
-                  <Avatar>
-                    <AvatarImage src={user.image ?? "/avatar.png"} />
-                  </Avatar>
+      <CardContent className="space-y-4">
+        {users.map((user) => (
+          <div
+            key={user.id}
+            className="flex items-center justify-between group"
+          >
+            {/* Profile Info */}
+            <div className="flex items-center gap-3">
+              <Link href={`/profile/${user.username}`}>
+                <Avatar className="h-10 w-10 ring-2 ring-transparent group-hover:ring-primary transition">
+                  <AvatarImage src={user.image ?? "/avatar.png"} />
+                </Avatar>
+              </Link>
+              <div className="text-sm leading-tight">
+                <Link
+                  href={`/profile/${user.username}`}
+                  className="font-semibold hover:underline"
+                >
+                  {user.name}
                 </Link>
-                <div className="text-xs">
-                  <Link
-                    href={`/profile/${user.username}`}
-                    className="font-medium cursor-pointer"
-                  >
-                    {user.name}
-                  </Link>
-                  <p className="text-muted-foreground">@{user.username}</p>
-                  <p className="text-muted-foreground">
-                    {user._count.followers} followers
-                  </p>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  @{user.username}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {user._count.followers} followers
+                </p>
               </div>
-              <FollowButton userId={user.id} />
             </div>
-          ))}
-        </div>
+
+            {/* Follow Button */}
+            <FollowButton userId={user.id} />
+          </div>
+        ))}
       </CardContent>
     </Card>
   );
