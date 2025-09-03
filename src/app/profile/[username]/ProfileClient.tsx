@@ -1,4 +1,6 @@
+// app/profile/[username]/ProfileClient.tsx
 "use client";
+
 import {
   getProfileByUsername,
   getUserPosts,
@@ -6,7 +8,7 @@ import {
 } from "@/lib/actions/profile.action";
 import { toggleFollow } from "@/lib/actions/user.action";
 import PostCard from "@/components/PostCard";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,6 +34,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
+import ImageUpload from "@/components/ImageUpload";
 
 type User = Awaited<ReturnType<typeof getProfileByUsername>>;
 type Posts = Awaited<ReturnType<typeof getUserPosts>>;
@@ -41,36 +44,59 @@ interface ProfilePageClientProps {
   posts: Posts;
   likedPosts: Posts;
   isFollowing: boolean;
+  dbUserId: string | null;
 }
 
-function ProfileClient({
+export default function ProfileClient({
   isFollowing: initialIsFollowing,
   likedPosts,
   posts,
-  user,
+  user: initialUser,
+  dbUserId,
 }: ProfilePageClientProps) {
   const { user: currentUser } = useUser();
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [isUpdatingFollow, setIsUpdatingFollow] = useState(false);
+  const [user, setUser] = useState(initialUser);
 
   const [editForm, setEditForm] = useState({
     name: user.name || "",
     bio: user.bio || "",
     location: user.location || "",
     website: user.website || "",
+    image: user.image || "",
   });
 
   const handleEditSubmit = async () => {
     const formData = new FormData();
-    Object.entries(editForm).forEach(([key, value]) =>
-      formData.append(key, value)
-    );
+    Object.entries(editForm).forEach(([key, value]) => {
+      if (value) formData.append(key, value);
+    });
 
-    const result = await updateProfile(formData);
-    if (result.success) {
-      setShowEditDialog(false);
-      toast.success("Profile updated successfully");
+    try {
+      const result = await updateProfile(formData);
+      if (result.success) {
+        setShowEditDialog(false);
+        toast.success("Profile updated successfully");
+        // Refresh user data
+        const updatedUser = await getProfileByUsername(user.username);
+        if (updatedUser) {
+          setUser(updatedUser);
+          setEditForm({
+            name: updatedUser.name || "",
+            bio: updatedUser.bio || "",
+            location: updatedUser.location || "",
+            website: updatedUser.website || "",
+            image: updatedUser.image || "",
+          });
+        }
+      } else {
+        throw new Error("Update failed");
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update profile");
     }
   };
 
@@ -81,21 +107,20 @@ function ProfileClient({
       setIsUpdatingFollow(true);
       await toggleFollow(user.id);
       setIsFollowing(!isFollowing);
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to update follow status");
     } finally {
       setIsUpdatingFollow(false);
     }
   };
 
-  const isOwnProfile =
-    currentUser?.username === user.username ||
-    currentUser?.emailAddresses[0].emailAddress.split("@")[0] === user.username;
+  const isOwnProfile = currentUser?.id === user.clerkId;
 
   const formattedDate = format(new Date(user.createdAt), "MMMM yyyy");
 
   return (
-    <div className="max-w-4xl  mt-3 mx-auto">
+    <div className="max-w-4xl mt-3 mx-auto" role="main">
       {/* --- Profile Header --- */}
       <div className="relative">
         {/* Banner Placeholder */}
@@ -104,7 +129,11 @@ function ProfileClient({
         {/* Avatar + Edit/Follow button */}
         <div className="flex justify-between px-4 -mt-12">
           <Avatar className="w-28 h-28 border-4 border-background rounded-full">
-            <AvatarImage src={user.image ?? "/avatar.png"} />
+            <AvatarImage
+              src={user.image ?? "/avatar.png"}
+              alt={`${user.name ?? user.username}'s avatar`}
+            />
+            <AvatarFallback>{user.name?.[0] ?? "U"}</AvatarFallback>
           </Avatar>
           <div className="flex items-center">
             {!currentUser ? (
@@ -202,7 +231,7 @@ function ProfileClient({
           {posts.length > 0 ? (
             <div className="space-y-6">
               {posts.map((post) => (
-                <PostCard key={post.id} post={post} dbUserId={user.id} />
+                <PostCard key={post.id} post={post} dbUserId={dbUserId} />
               ))}
             </div>
           ) : (
@@ -216,7 +245,7 @@ function ProfileClient({
           {likedPosts.length > 0 ? (
             <div className="space-y-6">
               {likedPosts.map((post) => (
-                <PostCard key={post.id} post={post} dbUserId={user.id} />
+                <PostCard key={post.id} post={post} dbUserId={dbUserId} />
               ))}
             </div>
           ) : (
@@ -234,6 +263,13 @@ function ProfileClient({
             <DialogTitle>Edit Profile</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Avatar</Label>
+              <ImageUpload
+                value={editForm.image}
+                onChange={(url) => setEditForm({ ...editForm, image: url })}
+              />
+            </div>
             <div className="space-y-2">
               <Label>Name</Label>
               <Input
@@ -291,5 +327,3 @@ function ProfileClient({
     </div>
   );
 }
-
-export default ProfileClient;

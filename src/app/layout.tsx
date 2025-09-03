@@ -1,14 +1,15 @@
+// app/layout.tsx
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
-
 import { Toaster } from "react-hot-toast";
 import LeftSidebar from "@/components/LeftSidebar";
 import MobileBottomNav from "@/components/MobileBottomNav";
-import RightSidebar from "@/components/RIghtSidebar";
+
 import MobileNavbar from "@/components/MobileNavbar";
+import RightSidebar from "@/components/RIghtSidebar";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -24,9 +25,9 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
@@ -50,8 +51,8 @@ export default function RootLayout({
 
               {/* Main Feed */}
               <main
-                className="flex-1 max-w-4xl w-full border-r min-h-screen px-4 
-                               pt-20 pb-16 lg:pt-0 lg:pb-0"
+                className="flex-1 max-w-4xl w-full border-r min-h-screen px-4 pt-20 pb-16 lg:pt-0 lg:pb-0"
+                role="main"
               >
                 {children}
               </main>

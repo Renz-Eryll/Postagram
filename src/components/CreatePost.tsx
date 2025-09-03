@@ -1,15 +1,17 @@
+// components/CreatePost.tsx
 "use client";
 
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
-import { Avatar, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Textarea } from "./ui/textarea";
-import { ImageIcon, Loader2Icon } from "lucide-react";
+import { Loader2Icon } from "lucide-react";
 import { Button } from "./ui/button";
 import { createPost } from "@/lib/actions/post.action";
 import toast from "react-hot-toast";
+import ImageUpload from "./ImageUpload";
 
-function CreatePost() {
+export default function CreatePost() {
   const { user } = useUser();
   const [content, setContent] = useState("");
   const [imageUrl, setImageUrl] = useState("");
@@ -25,8 +27,11 @@ function CreatePost() {
         setContent("");
         setImageUrl("");
         toast.success("Post created successfully");
+      } else {
+        throw new Error("Post creation failed");
       }
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to create post");
     } finally {
       setIsPosting(false);
@@ -36,7 +41,8 @@ function CreatePost() {
   return (
     <div className="border-b border-muted-foreground/20 p-4 flex space-x-3">
       <Avatar className="w-10 h-10">
-        <AvatarImage src={user?.imageUrl || "/avatar.png"} />
+        <AvatarImage src={user?.imageUrl} />
+        <AvatarFallback>{user?.firstName?.[0] ?? "U"}</AvatarFallback>
       </Avatar>
 
       <div className="flex-1">
@@ -46,6 +52,7 @@ function CreatePost() {
           value={content}
           onChange={(e) => setContent(e.target.value)}
           disabled={isPosting}
+          aria-label="Post content"
         />
 
         {imageUrl && (
@@ -55,13 +62,11 @@ function CreatePost() {
         )}
 
         <div className="flex items-center justify-between mt-3 border-t pt-3">
-          <button
-            type="button"
-            onClick={() => toast("Image upload UI goes here")}
-            className="flex items-center text-blue-500 hover:bg-blue-500/10 px-2 py-1 rounded-full transition"
-          >
-            <ImageIcon className="w-5 h-5" />
-          </button>
+          <ImageUpload
+            value={imageUrl}
+            onChange={setImageUrl}
+            disabled={isPosting}
+          />
 
           <Button
             onClick={handleSubmit}
@@ -81,4 +86,3 @@ function CreatePost() {
     </div>
   );
 }
-export default CreatePost;

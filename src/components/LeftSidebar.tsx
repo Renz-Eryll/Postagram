@@ -1,3 +1,4 @@
+// components/LeftSidebar.tsx
 "use client";
 
 import { getNotifications } from "@/lib/actions/notification.action";
@@ -54,14 +55,25 @@ export default function LeftSidebar() {
     : "/profile";
 
   return (
-    <nav className="flex flex-col h-full p-4 space-y-4">
+    <nav
+      className="flex flex-col h-full p-4 space-y-4"
+      aria-label="Sidebar navigation"
+    >
       {/* Logo */}
-      <Link href="/" className="text-2xl font-bold text-primary mb-10 ml-1">
-        <Image src="/logo.png" alt="Logo" width={40} height={40} />
+      <Link
+        href="/"
+        className="text-2xl font-bold text-primary mb-10 ml-1"
+        aria-label="Home"
+      >
+        <Image src="/logo.png" alt="Postagram Logo" width={40} height={40} />
       </Link>
 
       {/* Navigation Items */}
-      <Link href="/" className="flex items-center gap-3 text-lg font-medium">
+      <Link
+        href="/"
+        className="flex items-center gap-3 text-lg font-medium"
+        aria-label="Home"
+      >
         <HomeIcon className="w-5 h-5" /> Home
       </Link>
 
@@ -69,6 +81,9 @@ export default function LeftSidebar() {
         <Link
           href="/notifications"
           className="relative flex items-center gap-3 text-lg font-medium"
+          aria-label={`Notifications${
+            unreadCount > 0 ? `, ${unreadCount} unread` : ""
+          }`}
         >
           <BellIcon className="w-5 h-5" /> Notifications
           {unreadCount > 0 && (
@@ -83,6 +98,7 @@ export default function LeftSidebar() {
         <Link
           href={profileUrl}
           className="flex items-center gap-3 text-lg font-medium"
+          aria-label="Profile"
         >
           <UserIcon className="w-5 h-5" /> Profile
         </Link>
@@ -93,6 +109,7 @@ export default function LeftSidebar() {
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="flex items-center gap-3 text-lg font-medium focus:outline-none"
+          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         >
           {theme === "dark" ? (
             <>
@@ -113,12 +130,12 @@ export default function LeftSidebar() {
             <div className="flex items-center gap-3">
               <img
                 src={user.imageUrl}
-                alt={user.fullName || "User"}
+                alt={user.fullName || "User avatar"}
                 className="h-10 w-10 rounded-full"
               />
-              <div className="flex flex-col text-sm leading-tight">
-                <span className="font-medium">{user.fullName}</span>
-                <span className="text-xs text-gray-500 dark:text-gray-400">
+              <div className="flex flex-col text-sm leading-tight truncate">
+                <span className="font-medium truncate">{user.fullName}</span>
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate">
                   {user.primaryEmailAddress?.emailAddress}
                 </span>
               </div>
@@ -127,7 +144,10 @@ export default function LeftSidebar() {
             {/* Menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+                <button
+                  className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800"
+                  aria-label="User menu"
+                >
                   <MoreHorizontal className="h-5 w-5" />
                 </button>
               </DropdownMenuTrigger>

@@ -1,3 +1,4 @@
+// app/page.tsx
 import CreatePost from "@/components/CreatePost";
 import PostCard from "@/components/PostCard";
 import { getPosts } from "@/lib/actions/post.action";

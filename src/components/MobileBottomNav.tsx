@@ -1,3 +1,4 @@
+// components/MobileBottomNav.tsx
 "use client";
 
 import {
@@ -27,24 +28,27 @@ export default function MobileBottomNav() {
     : "/profile";
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 border-t bg-background flex justify-around items-center py-3 z-50">
+    <nav
+      className="fixed bottom-0 left-0 right-0 border-t bg-background flex justify-around items-center py-3 z-50"
+      aria-label="Mobile navigation"
+    >
       {/* Home */}
-      <Link href="/">
+      <Link href="/" aria-label="Home">
         <HomeIcon className="w-6 h-6" />
       </Link>
 
       {/* Search */}
-      <Link href="/search">
+      <Link href="/search" aria-label="Search">
         <SearchIcon className="w-6 h-6" />
       </Link>
 
       {/* Notifications + Profile only if signed in */}
       {isSignedIn && (
         <>
-          <Link href="/notifications">
+          <Link href="/notifications" aria-label="Notifications">
             <BellIcon className="w-6 h-6" />
           </Link>
-          <Link href={profileUrl}>
+          <Link href={profileUrl} aria-label="Profile">
             <UserIcon className="w-6 h-6" />
           </Link>
         </>
@@ -55,6 +59,7 @@ export default function MobileBottomNav() {
         <button
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
           className="p-1 rounded-full"
+          aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
         >
           {theme === "dark" ? (
             <SunIcon className="w-6 h-6" />
@@ -63,6 +68,6 @@ export default function MobileBottomNav() {
           )}
         </button>
       )}
-    </div>
+    </nav>
   );
 }

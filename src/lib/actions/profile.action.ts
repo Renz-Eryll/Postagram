@@ -1,9 +1,10 @@
+// lib/actions/profile.action.ts
 "use server";
 
-import { auth } from "@clerk/nextjs/server";
 import prisma from "@/lib/prisma";
-import { revalidatePath } from "next/cache";
 import { getDbUserId } from "./user.action";
+import { revalidatePath } from "next/cache";
+import { auth } from "@clerk/nextjs/server";
 
 export async function getProfileByUsername(username: string) {
   try {
@@ -11,6 +12,7 @@ export async function getProfileByUsername(username: string) {
       where: { username: username },
       select: {
         id: true,
+        clerkId: true,
         name: true,
         username: true,
         bio: true,
@@ -156,15 +158,18 @@ export async function updateProfile(formData: FormData) {
     const bio = formData.get("bio") as string;
     const location = formData.get("location") as string;
     const website = formData.get("website") as string;
+    const image = formData.get("image") as string;
+
+    const data: any = {};
+    if (name) data.name = name;
+    if (bio) data.bio = bio;
+    if (location) data.location = location;
+    if (website) data.website = website;
+    if (image) data.image = image;
 
     const user = await prisma.user.update({
       where: { clerkId },
-      data: {
-        name,
-        bio,
-        location,
-        website,
-      },
+      data,
     });
 
     revalidatePath("/profile");

@@ -1,31 +1,33 @@
+// components/PostCard.tsx
 "use client";
 
+import { getPosts } from "@/lib/actions/post.action"; // For type inference
 import {
   createComment,
   deletePost,
-  getPosts,
   toggleLike,
 } from "@/lib/actions/post.action";
 import { SignInButton, useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { Avatar, AvatarImage } from "./ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { formatDistanceToNow } from "date-fns";
 import { Button } from "./ui/button";
-import {
-  HeartIcon,
-  LogInIcon,
-  MessageCircleIcon,
-  SendIcon,
-} from "lucide-react";
+import { HeartIcon, LogInIcon, MessageCircleIcon } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
 
 type Posts = Awaited<ReturnType<typeof getPosts>>;
 type Post = Posts[number];
 
-function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
+export default function PostCard({
+  post,
+  dbUserId,
+}: {
+  post: Post;
+  dbUserId: string | null;
+}) {
   const { user } = useUser();
   const [newComment, setNewComment] = useState("");
   const [isCommenting, setIsCommenting] = useState(false);
@@ -34,34 +36,41 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
   const [hasLiked, setHasLiked] = useState(
     post.likes.some((like) => like.userId === dbUserId)
   );
-  const [optimisticLikes, setOptmisticLikes] = useState(post._count.likes);
+  const [optimisticLikes, setOptimisticLikes] = useState(post._count.likes);
   const [showComments, setShowComments] = useState(false);
 
   const handleLike = async () => {
-    if (isLiking) return;
+    if (isLiking || !user) return;
     try {
       setIsLiking(true);
-      setHasLiked((prev) => !prev);
-      setOptmisticLikes((prev) => prev + (hasLiked ? -1 : 1));
+      const newHasLiked = !hasLiked;
+      setHasLiked(newHasLiked);
+      setOptimisticLikes((prev) => prev + (newHasLiked ? 1 : -1));
       await toggleLike(post.id);
-    } catch {
-      setOptmisticLikes(post._count.likes);
-      setHasLiked(post.likes.some((like) => like.userId === dbUserId));
+    } catch (error) {
+      console.error(error);
+      setHasLiked(!hasLiked); // Revert
+      setOptimisticLikes(post._count.likes); // Revert
+      toast.error("Failed to toggle like");
     } finally {
       setIsLiking(false);
     }
   };
 
   const handleAddComment = async () => {
-    if (!newComment.trim() || isCommenting) return;
+    if (!newComment.trim() || isCommenting || !user) return;
     try {
       setIsCommenting(true);
       const result = await createComment(post.id, newComment);
       if (result?.success) {
         toast.success("Comment posted successfully");
         setNewComment("");
+        // Optionally refetch comments or optimistic update
+      } else {
+        throw new Error("Comment creation failed");
       }
-    } catch {
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to add comment");
     } finally {
       setIsCommenting(false);
@@ -69,13 +78,17 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
   };
 
   const handleDeletePost = async () => {
-    if (isDeleting) return;
+    if (isDeleting || dbUserId !== post.author.id) return;
     try {
       setIsDeleting(true);
       const result = await deletePost(post.id);
-      if (result.success) toast.success("Post deleted successfully");
-      else throw new Error(result.error);
-    } catch {
+      if (result.success) {
+        toast.success("Post deleted successfully");
+      } else {
+        throw new Error(result.error ?? "Delete failed");
+      }
+    } catch (error) {
+      console.error(error);
       toast.error("Failed to delete post");
     } finally {
       setIsDeleting(false);
@@ -83,12 +96,16 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
   };
 
   return (
-    <div className="border-b border-muted-foreground/20 p-4 hover:bg-muted/30 transition">
+    <article className="border-b border-muted-foreground/20 p-4 hover:bg-muted/30 transition">
       <div className="flex items-start space-x-3">
         {/* Avatar */}
-        <Link href={`/profile/${post.author.username}`}>
+        <Link
+          href={`/profile/${post.author.username}`}
+          aria-label={`${post.author.name}'s profile`}
+        >
           <Avatar className="w-10 h-10">
             <AvatarImage src={post.author.image ?? "/avatar.png"} />
+            <AvatarFallback>{post.author.name?.[0] ?? "U"}</AvatarFallback>
           </Avatar>
         </Link>
 
@@ -99,7 +116,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
             <div className="flex items-center space-x-2 truncate">
               <Link
                 href={`/profile/${post.author.username}`}
-                className="font-semibold hover:underline"
+                className="font-semibold hover:underline truncate"
               >
                 {post.author.name}
               </Link>
@@ -124,7 +141,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
             <div className="mt-3 rounded-xl overflow-hidden border">
               <img
                 src={post.image}
-                alt="Post content"
+                alt="Post image"
                 className="w-full h-auto object-cover"
               />
             </div>
@@ -136,9 +153,12 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
             {user ? (
               <button
                 onClick={handleLike}
+                disabled={isLiking}
                 className={`flex items-center gap-2 hover:text-red-500 transition ${
                   hasLiked ? "text-red-500" : ""
                 }`}
+                aria-label={hasLiked ? "Unlike" : "Like"}
+                aria-pressed={hasLiked}
               >
                 <HeartIcon
                   className={`w-5 h-5 ${hasLiked ? "fill-current" : ""}`}
@@ -147,7 +167,10 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
               </button>
             ) : (
               <SignInButton mode="modal">
-                <button className="flex items-center gap-2 hover:text-red-500">
+                <button
+                  className="flex items-center gap-2 hover:text-red-500"
+                  aria-label="Sign in to like"
+                >
                   <HeartIcon className="w-5 h-5" />
                   {optimisticLikes}
                 </button>
@@ -160,6 +183,8 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
               className={`flex items-center gap-2 hover:text-blue-500 transition ${
                 showComments ? "text-blue-500" : ""
               }`}
+              aria-label={showComments ? "Hide comments" : "Show comments"}
+              aria-expanded={showComments}
             >
               <MessageCircleIcon className="w-5 h-5" />
               {post.comments.length}
@@ -173,6 +198,9 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                 <div key={comment.id} className="flex space-x-3">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={comment.author.image ?? "/avatar.png"} />
+                    <AvatarFallback>
+                      {comment.author.name?.[0] ?? "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 text-sm">
@@ -193,6 +221,9 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                 <div className="flex space-x-3">
                   <Avatar className="w-8 h-8">
                     <AvatarImage src={user?.imageUrl || "/avatar.png"} />
+                    <AvatarFallback>
+                      {user?.firstName?.[0] ?? "U"}
+                    </AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
                     <Textarea
@@ -200,6 +231,7 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
                       className="resize-none min-h-[60px]"
+                      aria-label="Reply content"
                     />
                     <div className="flex justify-end mt-2">
                       <Button
@@ -225,7 +257,6 @@ function PostCard({ post, dbUserId }: { post: Post; dbUserId: string | null }) {
           )}
         </div>
       </div>
-    </div>
+    </article>
   );
 }
-export default PostCard;
