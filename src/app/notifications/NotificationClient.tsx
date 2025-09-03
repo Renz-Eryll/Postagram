@@ -13,6 +13,7 @@ import { HeartIcon, MessageCircleIcon, UserPlusIcon } from "lucide-react";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { NotifSkeleton } from "@/components/NotifSkeleton";
+import Image from "next/image";
 
 type Notifications = Awaited<ReturnType<typeof getNotifications>>;
 type Notification = Notifications[number];
@@ -121,7 +122,7 @@ export default function NotificationsClient() {
                         <div className="text-xs text-muted-foreground bg-muted rounded-lg p-2">
                           <p className="line-clamp-2">{n.post.content}</p>
                           {n.post.image && (
-                            <img
+                            <Image
                               src={n.post.image}
                               alt="Post preview"
                               className="mt-2 rounded-md w-full max-w-[220px] h-auto object-cover"

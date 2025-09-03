@@ -17,6 +17,7 @@ import { Button } from "./ui/button";
 import { HeartIcon, LogInIcon, MessageCircleIcon } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
+import Image from "next/image";
 
 type Posts = Awaited<ReturnType<typeof getPosts>>;
 type Post = Posts[number];
@@ -139,7 +140,7 @@ export default function PostCard({
           {/* Image */}
           {post.image && (
             <div className="mt-3 rounded-xl overflow-hidden border">
-              <img
+              <Image
                 src={post.image}
                 alt="Post image"
                 className="w-full h-auto object-cover"

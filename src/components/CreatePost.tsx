@@ -10,6 +10,7 @@ import { Button } from "./ui/button";
 import { createPost } from "@/lib/actions/post.action";
 import toast from "react-hot-toast";
 import ImageUpload from "./ImageUpload";
+import Image from "next/image";
 
 export default function CreatePost() {
   const { user } = useUser();
@@ -57,7 +58,11 @@ export default function CreatePost() {
 
         {imageUrl && (
           <div className="mt-3 rounded-xl overflow-hidden border">
-            <img src={imageUrl} alt="preview" className="w-full object-cover" />
+            <Image
+              src={imageUrl}
+              alt="preview"
+              className="w-full object-cover"
+            />
           </div>
         )}
 

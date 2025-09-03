@@ -4,6 +4,7 @@
 import { useState, useRef } from "react";
 import { ImageIcon, Loader2Icon, XIcon } from "lucide-react";
 import toast from "react-hot-toast";
+import Image from "next/image";
 
 interface ImageUploadProps {
   value: string;
@@ -77,7 +78,7 @@ export default function ImageUpload({
         >
           <XIcon className="h-3 w-3" />
         </button>
-        <img
+        <Image
           src={value}
           alt="Uploaded image"
           className="max-h-20 rounded-md object-cover"

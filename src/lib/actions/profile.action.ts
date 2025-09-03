@@ -149,6 +149,14 @@ export async function getUserLikedPosts(userId: string) {
   }
 }
 
+interface UpdateProfileData {
+  name?: string;
+  bio?: string;
+  location?: string;
+  website?: string;
+  image?: string;
+}
+
 export async function updateProfile(formData: FormData) {
   try {
     const { userId: clerkId } = await auth();
@@ -160,7 +168,7 @@ export async function updateProfile(formData: FormData) {
     const website = formData.get("website") as string;
     const image = formData.get("image") as string;
 
-    const data: any = {};
+    const data: UpdateProfileData = {};
     if (name) data.name = name;
     if (bio) data.bio = bio;
     if (location) data.location = location;

@@ -11,7 +11,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import Link from "next/link";
-import { UserButton, SignInButton, useUser, useClerk } from "@clerk/nextjs";
+import { SignInButton, useUser, useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import { useTheme } from "next-themes";
@@ -128,7 +128,7 @@ export default function LeftSidebar() {
           <div className="flex items-center justify-between gap-4">
             {/* User Info */}
             <div className="flex items-center gap-3">
-              <img
+              <Image
                 src={user.imageUrl}
                 alt={user.fullName || "User avatar"}
                 className="h-10 w-10 rounded-full"
