@@ -1,4 +1,6 @@
-// app/profile/[username]/page.tsx
+// src/app/profile/[username]/page.tsx
+import { type NextPage } from "next";
+import { notFound } from "next/navigation";
 import {
   getProfileByUsername,
   getUserLikedPosts,
@@ -6,14 +8,16 @@ import {
   isFollowing,
 } from "@/lib/actions/profile.action";
 import { getDbUserId } from "@/lib/actions/user.action";
-import { notFound } from "next/navigation";
 import ProfileClient from "./ProfileClient";
 
-export async function generateMetadata({
-  params,
-}: {
+export const dynamic = "force-dynamic";
+
+type PageProps = {
   params: { username: string };
-}) {
+  searchParams: Record<string, string | string[] | undefined>;
+};
+
+export async function generateMetadata({ params }: PageProps) {
   const user = await getProfileByUsername(params.username);
   if (!user) return { title: "Profile not found" };
 
@@ -24,7 +28,7 @@ export async function generateMetadata({
   };
 }
 
-async function ProfilePageServer({ params }: { params: { username: string } }) {
+const ProfilePageServer: NextPage<PageProps> = async ({ params }) => {
   const user = await getProfileByUsername(params.username);
 
   if (!user) notFound();
@@ -46,5 +50,6 @@ async function ProfilePageServer({ params }: { params: { username: string } }) {
       dbUserId={dbUserId}
     />
   );
-}
+};
+
 export default ProfilePageServer;

@@ -13,7 +13,7 @@ import {
 import Link from "next/link";
 import { SignInButton, useUser, useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import Image from "next/image";
+
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import {
@@ -22,6 +22,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
+import Image from "next/image";
 
 export default function LeftSidebar() {
   const { isSignedIn, user } = useUser();
@@ -129,6 +130,8 @@ export default function LeftSidebar() {
             {/* User Info */}
             <div className="flex items-center gap-3">
               <Image
+                width={40}
+                height={40}
                 src={user.imageUrl}
                 alt={user.fullName || "User avatar"}
                 className="h-10 w-10 rounded-full"

@@ -141,6 +141,8 @@ export default function PostCard({
           {post.image && (
             <div className="mt-3 rounded-xl overflow-hidden border">
               <Image
+                width={600}
+                height={400}
                 src={post.image}
                 alt="Post image"
                 className="w-full h-auto object-cover"
