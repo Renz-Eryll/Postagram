@@ -1,4 +1,3 @@
-// src/app/profile/[username]/page.tsx
 import { type NextPage } from "next";
 import { notFound } from "next/navigation";
 import {
@@ -10,15 +9,14 @@ import {
 import { getDbUserId } from "@/lib/actions/user.action";
 import ProfileClient from "./ProfileClient";
 
-export const dynamic = "force-dynamic";
-
 type PageProps = {
-  params: { username: string };
+  params: Promise<{ username: string }>;
   searchParams: Record<string, string | string[] | undefined>;
 };
 
 export async function generateMetadata({ params }: PageProps) {
-  const user = await getProfileByUsername(params.username);
+  const { username } = await params; // Resolve the Promise
+  const user = await getProfileByUsername(username);
   if (!user) return { title: "Profile not found" };
 
   return {
@@ -29,7 +27,8 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 const ProfilePageServer: NextPage<PageProps> = async ({ params }) => {
-  const user = await getProfileByUsername(params.username);
+  const { username } = await params; // Resolve the Promise
+  const user = await getProfileByUsername(username);
 
   if (!user) notFound();
 

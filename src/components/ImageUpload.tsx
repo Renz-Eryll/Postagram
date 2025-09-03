@@ -79,6 +79,8 @@ export default function ImageUpload({
           <XIcon className="h-3 w-3" />
         </button>
         <Image
+          width={20}
+          height={20}
           src={value}
           alt="Uploaded image"
           className="max-h-20 rounded-md object-cover"

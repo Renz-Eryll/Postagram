@@ -59,6 +59,8 @@ export default function CreatePost() {
         {imageUrl && (
           <div className="mt-3 rounded-xl overflow-hidden border">
             <Image
+              width={20}
+              height={20}
               src={imageUrl}
               alt="preview"
               className="w-full object-cover"
