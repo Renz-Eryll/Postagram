@@ -5,7 +5,7 @@ import WhoToFollow from "./WhoToFollow";
 export default function RightSidebar() {
   return (
     <aside
-      className="hidden lg:block w-[320px] shrink-0"
+      className="hidden lg:block w-[320px] shrink-0 top-5 fixed "
       aria-label="Right sidebar"
     >
       <div className="sticky top-0 bg-background pb-4">

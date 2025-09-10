@@ -11,7 +11,7 @@ export default async function Home() {
   const dbUserId = await getDbUserId();
 
   return (
-    <div>
+    <div className="py-10">
       {user ? <CreatePost /> : null}
       <div className="divide-y">
         {posts.map((post) => (
