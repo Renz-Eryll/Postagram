@@ -5,7 +5,6 @@ import {
   HomeIcon,
   BellIcon,
   UserIcon,
-  SearchIcon,
   SunIcon,
   MoonIcon,
 } from "lucide-react";
@@ -35,11 +34,6 @@ export default function MobileBottomNav() {
       {/* Home */}
       <Link href="/" aria-label="Home">
         <HomeIcon className="w-6 h-6" />
-      </Link>
-
-      {/* Search */}
-      <Link href="/search" aria-label="Search">
-        <SearchIcon className="w-6 h-6" />
       </Link>
 
       {/* Notifications + Profile only if signed in */}
