@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { HomeIcon, ArrowLeftIcon } from "lucide-react";
+import { HomeIcon } from "lucide-react";
 
 export default function NotFound() {
   return (
@@ -15,10 +15,10 @@ export default function NotFound() {
             {/* MESSAGE */}
             <div className="space-y-2">
               <h1 className="text-2xl font-bold tracking-tight">
-                User not found
+                Page not found
               </h1>
               <p className="text-muted-foreground">
-                The user you&apos;re looking for does&apos;t exist.
+                The page or user you&apos;re looking for doesn&apos;t exist.
               </p>
             </div>
 
@@ -31,12 +31,6 @@ export default function NotFound() {
                 </Link>
               </Button>
 
-              <Button variant="outline" asChild>
-                <Link href="/">
-                  <ArrowLeftIcon className="mr-2 size-4" />
-                  Home
-                </Link>
-              </Button>
             </div>
           </div>
         </CardContent>
