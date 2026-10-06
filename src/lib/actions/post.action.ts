@@ -3,6 +3,13 @@
 import prisma from "@/lib/prisma";
 import { getDbUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
+import { MAX_COMMENT_LENGTH, MAX_POST_LENGTH, postInclude } from "@/lib/post";
+
+// Purge the feed and every profile page, since posts show up on both
+function revalidateFeeds() {
+  revalidatePath("/");
+  revalidatePath("/profile/[username]", "page");
+}
 
 export async function createPost(content: string, image: string) {
   try {
@@ -10,15 +17,20 @@ export async function createPost(content: string, image: string) {
 
     if (!userId) return;
 
+    const trimmed = content.trim();
+    if (!trimmed && !image) throw new Error("Post cannot be empty");
+    if (trimmed.length > MAX_POST_LENGTH)
+      throw new Error(`Post exceeds ${MAX_POST_LENGTH} characters`);
+
     const post = await prisma.post.create({
       data: {
-        content,
+        content: trimmed,
         image,
         authorId: userId,
       },
     });
 
-    revalidatePath("/"); // purge the cache for the home page
+    revalidateFeeds();
     return { success: true, post };
   } catch (error) {
     console.error("Failed to create post:", error);
@@ -32,42 +44,7 @@ export async function getPosts() {
       orderBy: {
         createdAt: "desc",
       },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            image: true,
-            username: true,
-          },
-        },
-        comments: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                username: true,
-                image: true,
-                name: true,
-              },
-            },
-          },
-          orderBy: {
-            createdAt: "asc",
-          },
-        },
-        likes: {
-          select: {
-            userId: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
-          },
-        },
-      },
+      include: postInclude,
     });
 
     return posts;
@@ -133,7 +110,7 @@ export async function toggleLike(postId: string) {
       ]);
     }
 
-    revalidatePath("/");
+    revalidateFeeds();
     return { success: true };
   } catch (error) {
     console.error("Failed to toggle like:", error);
@@ -146,7 +123,11 @@ export async function createComment(postId: string, content: string) {
     const userId = await getDbUserId();
 
     if (!userId) return;
+
+    content = content.trim();
     if (!content) throw new Error("Content is required");
+    if (content.length > MAX_COMMENT_LENGTH)
+      throw new Error(`Comment exceeds ${MAX_COMMENT_LENGTH} characters`);
 
     const post = await prisma.post.findUnique({
       where: { id: postId },
@@ -182,7 +163,7 @@ export async function createComment(postId: string, content: string) {
       return [newComment];
     });
 
-    revalidatePath(`/`);
+    revalidateFeeds();
     return { success: true, comment };
   } catch (error) {
     console.error("Failed to create comment:", error);
@@ -207,7 +188,7 @@ export async function deletePost(postId: string) {
       where: { id: postId },
     });
 
-    revalidatePath("/"); // purge the cache
+    revalidateFeeds();
     return { success: true };
   } catch (error) {
     console.error("Failed to delete post:", error);

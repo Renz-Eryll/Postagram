@@ -8,6 +8,7 @@ import { Textarea } from "./ui/textarea";
 import { Loader2Icon } from "lucide-react";
 import { Button } from "./ui/button";
 import { createPost } from "@/lib/actions/post.action";
+import { MAX_POST_LENGTH } from "@/lib/post";
 import toast from "react-hot-toast";
 import ImageUpload from "./ImageUpload";
 import Image from "next/image";
@@ -54,13 +55,19 @@ export default function CreatePost() {
           onChange={(e) => setContent(e.target.value)}
           disabled={isPosting}
           aria-label="Post content"
+          maxLength={MAX_POST_LENGTH}
         />
+        {content.length > MAX_POST_LENGTH * 0.8 && (
+          <p className="text-right text-xs text-muted-foreground">
+            {content.length}/{MAX_POST_LENGTH}
+          </p>
+        )}
 
         {imageUrl && (
           <div className="mt-3 rounded-xl overflow-hidden border">
             <Image
-              width={20}
-              height={20}
+              width={600}
+              height={400}
               src={imageUrl}
               alt="preview"
               className="w-full object-cover"
