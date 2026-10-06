@@ -34,7 +34,7 @@
 
 ## 🌐 Demo
 
-🔗 **Live Demo**: [Postagram](#)
+🔗 **Live Demo**: https://postagram-app.vercel.app
 
 ---
 
@@ -45,7 +45,7 @@ Follow these steps to get a local copy of the project up and running.
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/Renz-Eryll/CourseBoard.git
+git clone https://github.com/Renz-Eryll/Postagram.git
 ```
 
 ## 2️⃣ Environment Setup
