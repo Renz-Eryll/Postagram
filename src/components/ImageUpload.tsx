@@ -31,11 +31,11 @@ export default function ImageUpload({
         body: formData,
       });
 
+      const data = await res.json();
       if (!res.ok) {
-        throw new Error("Upload failed");
+        throw new Error(data.error ?? "Upload failed");
       }
 
-      const data = await res.json();
       if (data.url) {
         onChange(data.url);
         toast.success("Image uploaded!");
@@ -44,7 +44,7 @@ export default function ImageUpload({
       }
     } catch (err) {
       console.error(err);
-      toast.error("Upload failed");
+      toast.error(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setIsUploading(false);
     }
@@ -61,6 +61,8 @@ export default function ImageUpload({
     if (file) {
       handleUpload(file);
     }
+    e.target.value = ""; // allow re-selecting the same file
+
   };
 
   const handleRemove = () => {
@@ -79,8 +81,8 @@ export default function ImageUpload({
           <XIcon className="h-3 w-3" />
         </button>
         <Image
-          width={20}
-          height={20}
+          width={80}
+          height={80}
           src={value}
           alt="Uploaded image"
           className="max-h-20 rounded-md object-cover"
@@ -106,7 +108,7 @@ export default function ImageUpload({
       </button>
       <input
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp,image/gif"
         ref={fileInputRef}
         onChange={handleFileChange}
         disabled={isUploading || disabled}
