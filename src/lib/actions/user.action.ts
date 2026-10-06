@@ -19,13 +19,19 @@ export async function syncUser() {
 
     if (existingUser) return existingUser;
 
+    const email = user.emailAddresses[0].emailAddress;
+    let username = user.username ?? email.split("@")[0];
+
+    // Email prefixes can collide (john@gmail.com vs john@yahoo.com)
+    const taken = await prisma.user.findUnique({ where: { username } });
+    if (taken) username = `${username}${userId.slice(-6).toLowerCase()}`;
+
     const dbUser = await prisma.user.create({
       data: {
         clerkId: userId,
-        name: `${user.firstName || ""} ${user.lastName || ""}`,
-        username:
-          user.username ?? user.emailAddresses[0].emailAddress.split("@")[0],
-        email: user.emailAddresses[0].emailAddress,
+        name: `${user.firstName || ""} ${user.lastName || ""}`.trim() || null,
+        username,
+        email,
         image: user.imageUrl,
       },
     });
@@ -57,7 +63,8 @@ export async function getDbUserId() {
   const { userId: clerkId } = await auth();
   if (!clerkId) return null;
 
-  const user = await getUserByClerkId(clerkId);
+  // First request after sign-up: create the DB row for this Clerk user
+  const user = (await getUserByClerkId(clerkId)) ?? (await syncUser());
 
   if (!user) throw new Error("User not found");
 
