@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { getDbUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
 import { auth } from "@clerk/nextjs/server";
+import { postInclude } from "@/lib/post";
 
 export async function getProfileByUsername(username: string) {
   try {
@@ -43,42 +44,7 @@ export async function getUserPosts(userId: string) {
       where: {
         authorId: userId,
       },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            image: true,
-          },
-        },
-        comments: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                username: true,
-                image: true,
-              },
-            },
-          },
-          orderBy: {
-            createdAt: "asc",
-          },
-        },
-        likes: {
-          select: {
-            userId: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
-          },
-        },
-      },
+      include: postInclude,
       orderBy: {
         createdAt: "desc",
       },
@@ -101,42 +67,7 @@ export async function getUserLikedPosts(userId: string) {
           },
         },
       },
-      include: {
-        author: {
-          select: {
-            id: true,
-            name: true,
-            username: true,
-            image: true,
-          },
-        },
-        comments: {
-          include: {
-            author: {
-              select: {
-                id: true,
-                name: true,
-                username: true,
-                image: true,
-              },
-            },
-          },
-          orderBy: {
-            createdAt: "asc",
-          },
-        },
-        likes: {
-          select: {
-            userId: true,
-          },
-        },
-        _count: {
-          select: {
-            likes: true,
-            comments: true,
-          },
-        },
-      },
+      include: postInclude,
       orderBy: {
         createdAt: "desc",
       },
@@ -180,7 +111,7 @@ export async function updateProfile(formData: FormData) {
       data,
     });
 
-    revalidatePath("/profile");
+    revalidatePath("/profile/[username]", "page");
     return { success: true, user };
   } catch (error) {
     console.error("Error updating profile:", error);
