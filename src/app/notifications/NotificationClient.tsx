@@ -120,9 +120,13 @@ export default function NotificationsClient() {
                     {n.post && (n.type === "LIKE" || n.type === "COMMENT") && (
                       <div className="ml-6 space-y-2">
                         <div className="text-xs text-muted-foreground bg-muted rounded-lg p-2">
-                          <p className="line-clamp-2">{n.post.content}</p>
+                          {n.post.content && (
+                            <p className="line-clamp-2">{n.post.content}</p>
+                          )}
                           {n.post.image && (
                             <Image
+                              width={220}
+                              height={160}
                               src={n.post.image}
                               alt="Post preview"
                               className="mt-2 rounded-md w-full max-w-[220px] h-auto object-cover"

@@ -18,6 +18,7 @@ import { HeartIcon, LogInIcon, MessageCircleIcon } from "lucide-react";
 import { Textarea } from "./ui/textarea";
 import { DeleteAlertDialog } from "./DeleteAlertDialog";
 import Image from "next/image";
+import { MAX_COMMENT_LENGTH } from "@/lib/post";
 
 type Posts = Awaited<ReturnType<typeof getPosts>>;
 type Post = Posts[number];
@@ -42,16 +43,18 @@ export default function PostCard({
 
   const handleLike = async () => {
     if (isLiking || !user) return;
+    const prevHasLiked = hasLiked;
+    const prevLikes = optimisticLikes;
     try {
       setIsLiking(true);
-      const newHasLiked = !hasLiked;
-      setHasLiked(newHasLiked);
-      setOptimisticLikes((prev) => prev + (newHasLiked ? 1 : -1));
-      await toggleLike(post.id);
+      setHasLiked(!prevHasLiked);
+      setOptimisticLikes(prevLikes + (prevHasLiked ? -1 : 1));
+      const result = await toggleLike(post.id);
+      if (!result?.success) throw new Error(result?.error ?? "Like failed");
     } catch (error) {
       console.error(error);
-      setHasLiked(!hasLiked); // Revert
-      setOptimisticLikes(post._count.likes); // Revert
+      setHasLiked(prevHasLiked); // Revert
+      setOptimisticLikes(prevLikes); // Revert
       toast.error("Failed to toggle like");
     } finally {
       setIsLiking(false);
@@ -135,7 +138,11 @@ export default function PostCard({
           </div>
 
           {/* Text */}
-          <p className="mt-2 text-sm sm:text-base">{post.content}</p>
+          {post.content && (
+            <p className="mt-2 text-sm sm:text-base whitespace-pre-wrap break-words">
+              {post.content}
+            </p>
+          )}
 
           {/* Image */}
           {post.image && (
@@ -215,7 +222,9 @@ export default function PostCard({
                         · {formatDistanceToNow(new Date(comment.createdAt))} ago
                       </span>
                     </div>
-                    <p className="text-sm">{comment.content}</p>
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {comment.content}
+                    </p>
                   </div>
                 </div>
               ))}
@@ -233,6 +242,14 @@ export default function PostCard({
                       placeholder="Post your reply"
                       value={newComment}
                       onChange={(e) => setNewComment(e.target.value)}
+                      onKeyDown={(e) => {
+                        // Ctrl/Cmd + Enter submits the reply
+                        if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+                          e.preventDefault();
+                          handleAddComment();
+                        }
+                      }}
+                      maxLength={MAX_COMMENT_LENGTH}
                       className="resize-none min-h-[60px]"
                       aria-label="Reply content"
                     />
