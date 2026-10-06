@@ -105,8 +105,16 @@ export default function ProfileClient({
 
     try {
       setIsUpdatingFollow(true);
-      await toggleFollow(user.id);
+      const result = await toggleFollow(user.id);
+      if (!result?.success) throw new Error(result?.error);
       setIsFollowing(!isFollowing);
+      setUser((prev) => ({
+        ...prev,
+        _count: {
+          ...prev._count,
+          followers: prev._count.followers + (isFollowing ? -1 : 1),
+        },
+      }));
     } catch (error) {
       console.error(error);
       toast.error("Failed to update follow status");
@@ -161,7 +169,7 @@ export default function ProfileClient({
         <div className="px-4 mt-4">
           <h1 className="text-xl font-bold">{user.name ?? user.username}</h1>
           <p className="text-muted-foreground">@{user.username}</p>
-          {user.bio && <p className="mt-2 text-sm">{user.bio}</p>}
+          {user.bio && <p className="mt-2 text-sm whitespace-pre-wrap">{user.bio}</p>}
 
           {/* Meta Info */}
           <div className="flex flex-wrap gap-4 mt-3 text-sm text-muted-foreground">

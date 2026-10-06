@@ -1,6 +1,6 @@
 "use client";
 
-import { getNotifications } from "@/lib/actions/notification.action";
+import { getUnreadNotificationCount } from "@/lib/actions/notification.action";
 import {
   HomeIcon,
   BellIcon,
@@ -10,6 +10,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { SignInButton, useUser, useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
@@ -28,24 +29,19 @@ export default function LeftSidebar() {
   const [mounted, setMounted] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const { signOut } = useClerk();
+  const pathname = usePathname();
 
+  useEffect(() => setMounted(true), []);
+
+  // Re-check on navigation so the badge clears after visiting /notifications
   useEffect(() => {
-    setMounted(true);
-
-    if (isSignedIn) {
-      const fetchUnread = async () => {
-        try {
-          const notifications = await getNotifications();
-          const unread = notifications.filter((n) => !n.read).length;
-          setUnreadCount(unread);
-        } catch (err) {
-          console.error("Failed to fetch notifications", err);
-        }
-      };
-
-      fetchUnread();
+    if (!isSignedIn) return;
+    if (pathname === "/notifications") {
+      setUnreadCount(0);
+      return;
     }
-  }, [isSignedIn]);
+    getUnreadNotificationCount().then(setUnreadCount);
+  }, [isSignedIn, pathname]);
 
   const profileUrl = user
     ? `/profile/${
