@@ -1,5 +1,6 @@
 "use server";
 
+import { unstable_rethrow } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getDbUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
@@ -33,6 +34,8 @@ export async function createPost(content: string, image: string) {
     revalidateFeeds();
     return { success: true, post };
   } catch (error) {
+    // Let Next.js control-flow errors (redirect, notFound, dynamic usage) propagate.
+    unstable_rethrow(error);
     console.error("Failed to create post:", error);
     return { success: false, error: "Failed to create post" };
   }
@@ -49,6 +52,7 @@ export async function getPosts() {
 
     return posts;
   } catch (error) {
+    unstable_rethrow(error);
     console.log("Error in getPosts", error);
     throw new Error("Failed to fetch posts");
   }
@@ -113,6 +117,7 @@ export async function toggleLike(postId: string) {
     revalidateFeeds();
     return { success: true };
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Failed to toggle like:", error);
     return { success: false, error: "Failed to toggle like" };
   }
@@ -166,6 +171,7 @@ export async function createComment(postId: string, content: string) {
     revalidateFeeds();
     return { success: true, comment };
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Failed to create comment:", error);
     return { success: false, error: "Failed to create comment" };
   }
@@ -191,6 +197,7 @@ export async function deletePost(postId: string) {
     revalidateFeeds();
     return { success: true };
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Failed to delete post:", error);
     return { success: false, error: "Failed to delete post" };
   }

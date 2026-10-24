@@ -1,6 +1,7 @@
 // lib/actions/profile.action.ts
 "use server";
 
+import { unstable_rethrow } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getDbUserId } from "./user.action";
 import { revalidatePath } from "next/cache";
@@ -33,6 +34,8 @@ export async function getProfileByUsername(username: string) {
 
     return user;
   } catch (error) {
+    // Let Next.js control-flow errors (redirect, notFound, dynamic usage) propagate.
+    unstable_rethrow(error);
     console.error("Error fetching profile:", error);
     throw new Error("Failed to fetch profile");
   }
@@ -52,6 +55,7 @@ export async function getUserPosts(userId: string) {
 
     return posts;
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Error fetching user posts:", error);
     throw new Error("Failed to fetch user posts");
   }
@@ -75,6 +79,7 @@ export async function getUserLikedPosts(userId: string) {
 
     return likedPosts;
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Error fetching liked posts:", error);
     throw new Error("Failed to fetch liked posts");
   }
@@ -114,6 +119,7 @@ export async function updateProfile(formData: FormData) {
     revalidatePath("/profile/[username]", "page");
     return { success: true, user };
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Error updating profile:", error);
     return { success: false, error: "Failed to update profile" };
   }
@@ -135,6 +141,7 @@ export async function isFollowing(userId: string) {
 
     return !!follow;
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Error checking follow status:", error);
     return false;
   }

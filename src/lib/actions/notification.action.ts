@@ -1,4 +1,6 @@
 "use server";
+
+import { unstable_rethrow } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { getDbUserId } from "./user.action";
 
@@ -42,6 +44,8 @@ export async function getNotifications() {
 
     return notifications;
   } catch (error) {
+    // Let Next.js control-flow errors (redirect, notFound, dynamic usage) propagate.
+    unstable_rethrow(error);
     console.error("Error fetching notifications:", error);
     throw new Error("Failed to fetch notifications");
   }
@@ -56,6 +60,7 @@ export async function getUnreadNotificationCount() {
       where: { userId, read: false },
     });
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Error counting unread notifications:", error);
     return 0;
   }
@@ -81,6 +86,7 @@ export async function markNotificationsAsRead(notificationIds: string[]) {
 
     return { success: true };
   } catch (error) {
+    unstable_rethrow(error);
     console.error("Error marking notifications as read:", error);
     return { success: false };
   }
