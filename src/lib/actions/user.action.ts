@@ -1,5 +1,6 @@
 "use server";
 
+import { unstable_rethrow } from "next/navigation";
 import prisma from "@/lib/prisma";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
@@ -38,6 +39,8 @@ export async function syncUser() {
 
     return dbUser;
   } catch (error) {
+    // Let Next.js control-flow errors (redirect, notFound, dynamic usage) propagate.
+    unstable_rethrow(error);
     console.log("Error in syncUser", error);
   }
 }
@@ -109,6 +112,7 @@ export async function getRandomUsers() {
 
     return randomUsers;
   } catch (error) {
+    unstable_rethrow(error);
     console.log("Error fetching random users", error);
     return [];
   }
@@ -164,6 +168,7 @@ export async function toggleFollow(targetUserId: string) {
     revalidatePath("/");
     return { success: true };
   } catch (error) {
+    unstable_rethrow(error);
     console.log("Error in toggleFollow", error);
     return { success: false, error: "Error toggling follow" };
   }
